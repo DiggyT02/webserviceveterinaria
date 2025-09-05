@@ -30,6 +30,19 @@ app.get('/mascotas', async (req, res) => {
     handDbError(res, error);  
   }
 })
+
+app.get('/mascotas/:id', async (req, res) => {
+  const {id} = req.params
+  try{
+   const [rows] = await pool.query('SELECT * FROM mascotas WHERE id = ?', [id])
+   if (rows.length === 0){
+    return res.status(404).json({message: 'Mascota no encontrado'})
+   }
+   return res.status(200).json(rows[0])
+  }catch(error){
+    handDbError(res, error)
+  }
+});
 //POST (registrar)
 app.post('/mascotas', async (req, res) => {
   
@@ -65,7 +78,7 @@ app.put('/mascotas/:id', async (req, res) => {
       const [result] = await pool.query("UPDATE mascotas SET nombre = ?, tipo = ?, raza = ?, color = ?, peso = ?, genero = ?, WHERE id = ?", [nombre, tipo, raza, color, peso, genero, id]);
         //NO HUBO CAMBIOS EN LA BD
       if(result.affectedRows === 0){
-        return  res.status(404).json({message: "Mascota no encontrada"});
+        return res.status(404).json({message: "Mascota no encontrada"});
       }
 
       //Si llegamos hasta aqui, se logró realizar un cambio
